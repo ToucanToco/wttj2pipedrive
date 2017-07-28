@@ -3,3 +3,4 @@
 var pipedriveApiToken = 'XXXXXXXX';
 var pipedrivePipelineId = 0;
 var pipedriveStageId = 0;
+var pipedriveCRMUrl = '';
