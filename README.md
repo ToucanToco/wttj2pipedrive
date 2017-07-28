@@ -4,7 +4,7 @@ Parse WelcomeKit page, get candidate name, email and phone. Then send it to pipe
 
 ## How to use it:
 
-### Get Pipedrive infos:
+### Get Pipedrive infos
 
 You will need
 
