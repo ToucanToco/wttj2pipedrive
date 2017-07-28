@@ -1,0 +1,5 @@
+// Duplicate this file as pipedriveToken.js and fill with the relevant info
+
+var pipedriveApiToken = 'XXXXXXXX';
+var pipedrivePipelineId = 0;
+var pipedriveStageId = 0;
