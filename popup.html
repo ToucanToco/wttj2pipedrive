@@ -10,8 +10,23 @@
     <title>Export to Pipedrive</title>
     <style>
       body {
-        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+        font-family: "Montserrat", "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
         font-size: 100%;
+        color: #333;
+      }
+      .info {
+        font-size: 0.9em;
+      }
+      .emphasis {
+        font-weight: bold;
+      }
+      .small {
+        color: #848484;
+        font-size: 0.5em;
+        font-style: italic;
+      }
+      #profile {
+        width: 200px;
       }
       #status {
         /* avoid an excessively wide status text */
@@ -19,6 +34,16 @@
         text-overflow: ellipsis;
         overflow: hidden;
         max-width: 400px;
+      }
+      .button-block button {
+        padding: 5px;
+        border: 2px solid #333;
+        -webkit-appearance:none;
+        background-color: white;
+        text-transform: uppercase;
+      }
+      .button-block {
+        margin-bottom: 3px;
       }
     </style>
 
@@ -28,17 +53,26 @@
       -
       - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
      -->
+    <script src="superagent.js"></script>
     <script src="pipedriveToken.js"></script>
     <script src="popup.js"></script>
   </head>
   <body>
     <div id="profile">
-      <h3>Information to export</h3>
-      <div id="fullname"></div>
-      <div id="email"></div>
-      <div id="phone"></div>
-      <button>Create contact only</button>
-      <button>Create deal</button>
+      <h4 id="jobTitle"></h4>
+      <div class="small">Information to export:</div>
+      <div class="emphasis" id="fullname"></div>
+      <div class="info" id="email"></div>
+      <div class="info" id="phone"></div>
+      <br>
+      <div class="button-block">
+        <button id="button-contact">Create contact only</button>
+        <a id="link-contact" style="display: none;" target="_blank">Go To Pipedrive contact</a>
+      </div>
+      <div class="button-block">
+        <button id="button-deal">Create deal</button>
+        <a id="link-deal" style="display: none;" target="_blank">Go To Pipedrive deal</a>
+      </div>
     </div>
 
     <div id="status"></div>

@@ -1,50 +1,104 @@
-// Copyright (c) 2014 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+var dealTitle = 'Candidat WTTJ';
 
-// /**
-//  * @param {string} searchTerm - Search term for Google Image search.
-//  * @param {function(string,number,number)} callback - Called when an image has
-//  *   been found. The callback gets the URL, width and height of the image.
-//  * @param {function(string)} errorCallback - Called when the image is not found.
-//  *   The callback gets a string that describes the failure reason.
-//  */
-// function getImageUrl(searchTerm, callback, errorCallback) {
-//   // Google image search - 100 searches per day.
-//   // https://developers.google.com/image-search/
-//   var searchUrl = 'https://ajax.googleapis.com/ajax/services/search/images' +
-//     '?v=1.0&q=' + encodeURIComponent(searchTerm);
-//   var x = new XMLHttpRequest();
-//   x.open('GET', searchUrl);
-//   // The Google image search API responds with JSON, so let Chrome parse it.
-//   x.responseType = 'json';
-//   x.onload = function() {
-//     // Parse and process the response from Google Image Search.
-//     var response = x.response;
-//     if (!response || !response.responseData || !response.responseData.results ||
-//         response.responseData.results.length === 0) {
-//       errorCallback('No response from Google Image search!');
-//       return;
-//     }
-//     var firstResult = response.responseData.results[0];
-//     // Take the thumbnail instead of the full image to get an approximately
-//     // consistent image size.
-//     var imageUrl = firstResult.tbUrl;
-//     var width = parseInt(firstResult.tbWidth);
-//     var height = parseInt(firstResult.tbHeight);
-//     console.assert(
-//         typeof imageUrl == 'string' && !isNaN(width) && !isNaN(height),
-//         'Unexpected respose from the Google Image Search API!');
-//     callback(imageUrl, width, height);
-//   };
-//   x.onerror = function() {
-//     errorCallback('Network error.');
-//   };
-//   x.send();
-// }
+var pipedriveApiBaseUrl = 'https://api.pipedrive.com/v1';
+var request = window.superagent;
 
-// sophie
+function createOrUpdatePipedrivePerson(method, url, data, cb) {
+  var personId;
+  request[method](url)
+  .send(data)
+  .end(function(err, res) {
+    if (res.ok && res.body.success) {
+      personId = res.body.data.id;
+      if (method == 'put')
+        console.log('Person with id ' + personId + ' updated');
+      else if (method == 'post')
+        console.log('Person added to pipedrive with id ' + personId);
+      cb(personId);
+    } else {
+      console.log('Oh no! error creating or updateing user ' + res.text)
+    }
 
+  });
+
+}
+
+function addDealToPipedriveStage(personId, cb) {
+
+  var title = dealTitle;
+  var stageId = pipedriveStageId;
+  var data = {
+    stage_id: stageId,
+    title: title,
+    status: 'open',
+    person_id: personId
+  };
+
+  request.post(pipedriveApiBaseUrl + '/deals?api_token=' + pipedriveApiToken)
+  .send(data)
+  .end(function(err, res){
+    if (res.ok && res.body.success) {
+      var dealId = res.body.data.id;
+      console.log('Deal ' + dealId + 'added to stage ' + stageId)
+      cb(dealId);
+    } else {
+      console.log('Oh no! error ' + res.text);
+    }
+  });
+}
+
+function addContact(contact, cb) {
+
+  var personId, createUpdateUrl;
+
+  if (!contact.fullname)
+    return;
+  var data = {
+    name: contact.fullname,
+    email: contact.email,
+    phone: contact.phone
+  };
+
+  var personFindUrl = pipedriveApiBaseUrl + '/persons/find?term=' + data.name + '&api_token=' + pipedriveApiToken;
+
+  request.get(personFindUrl)
+  .end(function(err, res) {
+    if (res.ok && res.body.data && res.body.data.length > 0) {
+      console.log('Person already existing, upating');
+      personId = res.body.data[0].id;
+      createUpdateUrl = pipedriveApiBaseUrl + '/persons/' + personId + '?api_token=' + pipedriveApiToken;
+      createOrUpdatePipedrivePerson('put', createUpdateUrl, data, cb);
+    } else {
+      createUpdateUrl = pipedriveApiBaseUrl + '/persons?api_token=' + pipedriveApiToken;
+      createOrUpdatePipedrivePerson('post', createUpdateUrl, data, cb);
+    }
+
+  })
+}
+
+function createDealWithForCandidate(candidateInfos) {
+  addContact(candidateInfos, function(personId){
+    addDealToPipedriveStage(personId, function(dealId) {
+      var url = pipedriveCRMUrl + '/deal/' + dealId;
+      changeButtonToLink(url, 'deal');
+    });
+  });
+}
+
+
+function changeButtonToLink(url, type) {
+  document.getElementById('button-' + type).style.display = "none";
+  document.getElementById('link-' + type).style.display = '';
+  document.getElementById('link-' + type).href = url;
+}
+
+function createContact(candidateInfos) {
+  addContact(candidateInfos, function(personId){
+    var url = pipedriveCRMUrl + '/person/' + personId;
+    changeButtonToLink(url, 'contact');
+  });
+}
+//
 function renderProfile(candidate) {
   for (var property in candidate) {
     document.getElementById(property).textContent = candidate[property];
@@ -53,11 +107,19 @@ function renderProfile(candidate) {
 
 chrome.runtime.onMessage.addListener(function(request, sender) {
   if (request.action == "getCandidateInfo") {
-    console.log('request.source', request.source);
-    console.log('pipedriveApiToken', pipedriveApiToken);
+    // console.log('request.source', request.source);
+    // console.log('pipedriveApiToken', pipedriveApiToken);
     renderProfile(request.source);
+    dealTitle = request.source.jobTitle;
+    // add click listeners
+    document.getElementById("button-contact")
+      .addEventListener("click", function() {createContact(request.source)});
+    document.getElementById("button-deal")
+      .addEventListener("click", function() {createDealWithForCandidate(request.source)});
   }
 });
+
+
 
 function onWindowLoad() {
 
@@ -73,4 +135,3 @@ function onWindowLoad() {
 }
 
 window.onload = onWindowLoad;
-// sophie

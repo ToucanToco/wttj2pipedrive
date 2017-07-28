@@ -3,11 +3,14 @@ function getCandidateInfo(document_root) {
   var email = document_root.getElementsByClassName('candidate-infos-email')[0].textContent;
   var fullname = document_root.getElementsByClassName('card-header-name')[0].textContent;
   var phone = document_root.getElementsByClassName('candidate-infos-phone')[0].textContent;
+  var jobTitle = document.getElementsByClassName('dashboard-header-title')[0].textContent;
   var candidate = {
     fullname: fullname,
     email: email,
-    phone: phone
+    phone: phone,
+    jobTitle: jobTitle
   }
+
   return candidate;
 }
 
