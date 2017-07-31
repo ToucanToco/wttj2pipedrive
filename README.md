@@ -22,7 +22,30 @@ You will need
     * Click on that request, and go to the preview tab
     * In data, find the stage_id number
 
+### Clone the project
+
+    cd projects
+    git clone git@github.com:ToucanToco/wttj2pipedrive.git
+
+
+### Fill the infos
+
 Duplicate the `pipedriveToken.js.dist` as `pipedriveToken.js` and fill the infos.
+
+    cd projects/wttj2pipedrive
+    cp pipedriveToken.js.dist pipedriveToken.js
+
+:warning: Do not commit the `pipedriveToken.js` file or you will be flogged.
+
+Once the infos are filled, your `pipedriveToken.js` file should look something like this:
+
+
+```javascript
+var pipedriveApiToken = '12f3123123faeazrfdsdfser123123123q';
+var pipedrivePipelineId = 3;
+var pipedriveStageId = 10;
+var pipedriveCRMUrl = 'https://toucantoco.pipedrive.com';
+```
 
 ### Install it
 
