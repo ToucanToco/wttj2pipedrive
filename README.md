@@ -56,6 +56,16 @@ var pipedriveCRMUrl = 'https://toucantoco.pipedrive.com';
 
 [Check out Google Chrome's guide if this is not clear](https://developer.chrome.com/extensions/getstarted#unpacked)
 
+
+### Package it
+
+> Optional step!
+
+Try the extension, if it works, you might want to package it and use the package version instead, so that you don't need to activate the extension when you restart chrome (not sure if that's still the case). [Follow Google's intruction for packaging](https://developer.chrome.com/extensions/packaging)
+
+Then use the created `.crx` file and drag and drop it into chrome. Deactivate the unpacked extension and make sure the packed one is activated
+
+
 ### Use it !
 
 When on a welcome to the jungle candidate appliction popup, click the extension!
